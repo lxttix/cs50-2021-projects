@@ -1,0 +1,28 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>Active Listings</h2>
+
+    <ul>
+        {% for listing in listings %}
+            {% if listing.status != True %}
+                <h4>{{ listing.title }}</h4>
+                <p>{{ listing.description }}</p>
+                {% if not listing.highest_bidding_price %}
+                    <p>Current price: <strong>{{ listing.start_bid }}</strong></p>
+                {% else %}
+                    <p>Current price: <strong>£{{ listing.highest_bidding_price }}0</strong></p>
+                {% endif %}
+                
+                {% if listing.image_url %}
+                    <img src={{ listing.image_url }} width="300" height="300">
+                {% endif %}
+                <h6>Seller: {{ listing.seller.username }}</h6>
+                <br>
+                <a class="btn btn-light" href="display/{{ listing.title }}/{{ listing.id }}" role="button">View details</a>
+                <hr/>
+            {% endif %}
+        {% endfor %}
+    </ul>
+
+{% endblock %}
