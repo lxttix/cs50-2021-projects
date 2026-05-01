@@ -1,0 +1,103 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h1 class="display-4">{{ title }}</h1>
+
+    {% if check_watchlist %}
+        <span class="badge badge-secondary">Watchlist</span>
+        <br>
+    {% endif %}
+
+
+    {% if listing.image_url %}
+        <img src={{ listing.image_url }} width="400" height="400">
+    {% endif %}
+
+    <p class="lead">{{ listing.description }}</p>
+
+    {% if not listing.highest_bidding_price %}
+        <h3>{{ listing.start_bid }}</h3>
+    {% else %}
+        <h3>£{{ listing.highest_bidding_price }}0</h3>
+    {% endif %}
+
+    
+    {% if not winner %}
+        {% if request.user.username %}
+            {% if request.user.username == listing.seller.username %}
+                <a href="/close/{{ listing.id }}" class="btn btn-primary">Close auction</a>
+            {% else %}
+                {% if check_watchlist %}
+                    <a class="btn btn-secondary" href="/watchlist/delete/{{ listing.id }}" role="button">Delete from watchlist</a>
+                {% else %}
+                    <a class="btn btn-secondary" href="/watchlist/add/{{ listing.id }}" role="button">Add to watchlist</a>
+                {% endif %}
+                <form action="/display/{{ listing.title }}/{{ listing.id }}" method="post">
+                    {% csrf_token %}
+                    <br>
+                    <div class="input-group mb-3">
+                        {{ bidding_form.bidding_price.errors }}
+                        <div class="input-group-prepend">
+                        <span class="input-group-text">£</span>
+                        </div>
+                        {{ bidding_form.bidding_price }}
+                    </div>
+                    <input class="btn btn-primary" type="submit" value="Place bid" name="bid_form">
+                </form>
+            {% endif %}
+        {% else %}
+            <p>Log in to be able to place items on watchlist or a bid.</p>
+        {% endif %}
+    {% elif winner == request.user.username %}
+        <div class="alert alert-success" role="alert">
+            You have won the bid - congratulations!
+        </div>
+    {% else %}
+        <div class="alert alert-secondary" role="alert">
+            <strong>{{ winner }}</strong> has won the bid!
+        </div>
+    {% endif %}
+
+    {% if message %}
+        <br>
+        <strong>{{ message }}</strong>
+        <br>
+    {% endif %}
+
+    <div>
+        <br>
+        <h5>Details</h5>
+        <ul>
+            <li>Listed by: {{ listing.seller.username }}</li>
+            <li>Category: {{ category }}</li>
+        </ul>
+    </div>
+
+    <div>
+        <br>
+        <h5>Comments</h5>
+        <div>
+            {% for comment in comments %}
+                <div class="container p-3 my-3 border">
+                    <strong>{{ comment.posted_by }}:</strong>
+                    {{ comment.content }}
+                </div>
+            {% endfor %}
+        </div>
+        {% if comment_form %}
+            <div>
+                <form action="/display/{{ listing.title }}/{{ listing.id }}" method="post">
+                    {% csrf_token %}
+                    <br>
+                    <div class="input-group mb-3">
+                        {{ comment_form.content }}
+                    </div>
+                    <input class="btn btn-light" type="submit" value="Post Comment" name="comment_form">
+                </form>
+            </div>
+        {% else %}
+            <p>You must be logged in to post a comment. <a href="{% url 'login' %}">Log in</a></p>
+        {% endif %}
+    </div>
+
+{% endblock %}
