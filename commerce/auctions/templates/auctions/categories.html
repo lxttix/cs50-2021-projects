@@ -1,0 +1,14 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+    <h2>Categories</h2>
+    <p>Only categories with active listings are displayed.</p>
+    <br>
+
+    {% for category in categories %}
+        <h5><a href="/category/display/{{ category }}">{{ category }}</a></h5>
+        <br>
+    {% endfor %}
+
+{% endblock %}
